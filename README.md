@@ -50,8 +50,44 @@ Readcovery는 사용자가 모은 인용구를 AI로 분석해 독자 자신의 
 
 ## 트러블슈팅
 
-(개발하면서 작성 예정)
+### Git 머지 충돌 해결 - .gitignore 파일
+- 상황: GitHub에서 레포 생성 시 Java 템플릿으로 `.gitignore`가 자동 생성됨.
+  동시에 Spring Initializr에서 다운로드한 프로젝트에도 Gradle 전용 `.gitignore`가 포함되어
+  `git pull` 시 충돌 발생.
+- 원인: 동일 파일이 양쪽 저장소에 독립적으로 생성되어 git이 자동 병합 불가.
+- 해결: 두 파일을 비교한 결과, Spring Initializr 버전이 IntelliJ/Gradle 환경에 더 적합해
+  로컬 버전을 채택. 추가로 비밀 정보 파일(`application-secret.yml`, `.env`) 무시 규칙을 보강.
+- 배운 점: `.gitignore`처럼 두 환경에서 독립적으로 생성될 수 있는 파일은 한쪽에서만
+  관리하거나, 초기 셋업 시 한 곳을 비워두는 게 안전함.
 
 ## 실행 방법
 
-(작성 예정)
+### 사전 요구사항
+- Java 17 이상
+- MySQL 8.0
+- Spring Boot 4.0.6
+
+### 1. 데이터베이스 준비
+```sql
+CREATE DATABASE readcovery DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+### 2. 비밀 정보 설정
+`src/main/resources/application-secret.yml` 파일을 생성하고 다음 내용을 입력:
+
+```yaml
+spring:
+  datasource:
+    password: 본인_MySQL_비밀번호
+
+kakao:
+  api-key: 본인_카카오_REST_API_키
+```
+
+> ⚠️ `application-secret.yml`은 `.gitignore`에 등록되어 있어 Git에 포함되지 않습니다.
+> 비밀 정보는 절대 코드에 직접 작성하지 않도록 주의합니다.
+
+### 3. 애플리케이션 실행
+```bash
+./gradlew bootRun
+```

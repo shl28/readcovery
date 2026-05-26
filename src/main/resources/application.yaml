@@ -1,11 +1,13 @@
 spring:
+  config:
+    import: optional:application-secret.yml
+
   application:
     name: readcovery
 
   datasource:
     url: jdbc:mysql://localhost:3306/readcovery?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
-    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -16,6 +18,9 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
     show-sql: true
+
+kakao:
+  api-key: ${kakao.api-key}
 
 server:
   port: 8080

@@ -25,7 +25,7 @@ Readcovery는 사용자가 모은 인용구를 AI로 분석해 독자 자신의 
 
 ### Backend
 - Java 17
-- Spring Boot 3.x
+- Spring Boot 4.0.6
 - Spring Data JPA
 - Spring Security + JWT
 - MySQL 8.0

@@ -37,6 +37,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleDuplicateEmail(DuplicateEmailException e) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
+        response.put("status", 409);
+        response.put("error", "Conflict");
+        response.put("message", e.getMessage());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    // 그 외 예상 못한 에러
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleAll(Exception e) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
         response.put("status", 500);
         response.put("error", "Internal Server Error");
         response.put("message", "서버 오류가 발생했습니다.");

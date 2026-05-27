@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
                 @Index(name = "idx_users_email", columnList = "email"),
                 @Index(name = "idx_users_provider", columnList = "auth_provider, provider_id")
         }
-        )
+)
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

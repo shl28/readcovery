@@ -60,6 +60,15 @@ Readcovery는 사용자가 모은 인용구를 AI로 분석해 독자 자신의 
 - 배운 점: `.gitignore`처럼 두 환경에서 독립적으로 생성될 수 있는 파일은 한쪽에서만
   관리하거나, 초기 셋업 시 한 곳을 비워두는 게 안전함.
 
+### WebClient의 baseUrl이 무시되는 케이스
+- 상황: WebClient에 baseUrl을 설정했지만 카카오 API 호출 시 Connection refused 발생
+- 원인: URI 객체로 uri() 호출하면 baseUrl이 무시됨. UriComponentsBuilder로 만든
+  URI에는 호스트 정보가 없어서 localhost로 요청이 나감
+- 해결: uri(Function<UriBuilder, URI>) 람다 방식으로 변경. WebClient 내부 빌더는
+  baseUrl을 자동 적용함
+- 배운 점: WebClient의 uri() 메서드는 인자 타입에 따라 baseUrl 적용 여부가 달라짐.
+  String 또는 람다 사용이 안전
+
 ## 실행 방법
 
 ### 사전 요구사항

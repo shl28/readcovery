@@ -5,6 +5,9 @@ spring:
   application:
     name: readcovery
 
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
   datasource:
     url: jdbc:mysql://localhost:3306/readcovery?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root

@@ -24,14 +24,14 @@ public class MyBookService {
     private final BookRepository bookRepository;
 
     @Transactional
-    public MyBookResponse addToMyLibrary(MyBookCreateRequest request) {
+    public MyBookResponse addToMyLibrary(Long userId, MyBookCreateRequest request) {
         // 1. 이미 담은 책인지 확인
-        if (myBookRepository.existsByUserIdAndBookId(request.getUserId(), request.getBookId())) {
+        if (myBookRepository.existsByUserIdAndBookId(userId, request.getBookId())) {
             throw new IllegalStateException("이미 서재에 담은 책입니다.");
         }
 
         // 2. User와 Book 조회 (없으면 예외)
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         Book book = bookRepository.findById(request.getBookId())

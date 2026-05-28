@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,16 +21,16 @@ public class MyBookController {
 
     @PostMapping
     public ResponseEntity<MyBookResponse> addToMyLibrary(
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody MyBookCreateRequest request
     ) {
-        MyBookResponse response = myBookService.addToMyLibrary(request);
+        MyBookResponse response = myBookService.addToMyLibrary(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // 임시 : userId를 파라미터로 받음, JWT 도입 후 변경 예정
     @GetMapping
     public ResponseEntity<List<MyBookResponse>> getMyLibrary(
-            @RequestParam Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         List<MyBookResponse> library = myBookService.getMyLibrary(userId);
         return ResponseEntity.ok(library);

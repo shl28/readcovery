@@ -102,6 +102,10 @@ spring:
 
 kakao:
   api-key: 본인_카카오_REST_API_키
+
+jwt:
+  secret: 무작위_영숫자_최소_32자_이상
+  access-token-validity: 3600000
 ```
 
 > ⚠️ `application-secret.yml`은 `.gitignore`에 등록되어 있어 Git에 포함되지 않습니다.

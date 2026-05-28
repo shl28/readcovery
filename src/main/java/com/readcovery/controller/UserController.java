@@ -1,5 +1,7 @@
 package com.readcovery.controller;
 
+import com.readcovery.dto.user.LoginRequest;
+import com.readcovery.dto.user.LoginResponse;
 import com.readcovery.dto.user.SignupRequest;
 import com.readcovery.dto.user.SignupResponse;
 import com.readcovery.service.UserService;
@@ -23,5 +25,11 @@ public class UserController {
     public ResponseEntity<SignupResponse> signup(@Valid @RequestBody SignupRequest request) {
         SignupResponse response = userService.signup(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        LoginResponse response = userService.login(request);
+        return ResponseEntity.ok(response);
     }
 }

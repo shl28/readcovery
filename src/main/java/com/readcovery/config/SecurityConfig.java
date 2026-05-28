@@ -1,5 +1,6 @@
 package com.readcovery.config;
 
+import com.readcovery.config.jwt.JwtAuthenticationEntryPoint;
 import com.readcovery.config.jwt.JwtAuthenticationFilter;
 import com.readcovery.config.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -40,6 +42,9 @@ public class SecurityConfig {
                                 "/api/books/search"
                         ).permitAll()
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 )
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(

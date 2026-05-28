@@ -2,6 +2,7 @@ package com.readcovery.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -62,6 +63,16 @@ public class GlobalExceptionHandler {
         response.put("error", "Bad Request");
         response.put("message", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException e) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", 403);
+        response.put("error", "Forbidden");
+        response.put("message", e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     // 그 외 예상 못한 에러

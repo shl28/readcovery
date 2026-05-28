@@ -69,6 +69,17 @@ Readcovery는 사용자가 모은 인용구를 AI로 분석해 독자 자신의 
 - 배운 점: WebClient의 uri() 메서드는 인자 타입에 따라 baseUrl 적용 여부가 달라짐.
   String 또는 람다 사용이 안전
 
+### Jackson SNAKE_CASE 전략과 요청 필드 매핑 불일치
+- 상황: MyBook 등록 시 userId, bookId가 계속 null로 들어와 검증 실패(400).
+  회원가입, 책 등록은 정상이었음.
+- 원인: 카카오 API 연동 시 추가한 jackson.property-naming-strategy: SNAKE_CASE 설정 때문.
+  Jackson이 자바 camelCase 필드(userId)를 JSON snake_case(user_id)로 기대하는데,
+  요청은 camelCase로 보내서 매핑 실패. email, isbn처럼 단어 하나인 필드는
+  두 표기가 같아 문제가 드러나지 않다가, userId처럼 합성어에서 처음 발생.
+- 해결: API 요청/응답을 snake_case로 통일 (REST 관례에도 부합).
+- 배운 점: 전역 네이밍 전략은 모든 DTO에 영향을 미치므로, 외부 API 응답 매핑을 위해
+  도입할 때 자체 API의 요청/응답 규약도 함께 통일해야 함.
+
 ## 실행 방법
 
 ### 사전 요구사항

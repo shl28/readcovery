@@ -48,6 +48,18 @@ Readcovery는 사용자가 모은 인용구를 AI로 분석해 독자 자신의 
 
 (작성 예정)
 
+## 기술 결정 노트
+
+### 인증(Authentication)과 인가(Authorization) 분리
+- 인증: JWT로 "누구인지" 식별 (JwtAuthenticationFilter)
+- 인가: 서비스 레이어에서 "이 리소스에 접근할 권한이 있는지" 검증
+  (예: Quote 추가 시 myBook의 소유자와 토큰의 userId 일치 확인)
+- 인증 실패는 401(Unauthorized), 인가 실패는 403(Forbidden)으로 구분
+
+### 인증 실패 응답을 401로 명확화
+- Spring Security 기본 동작은 인증되지 않은 접근에도 403을 반환하는 경우가 있음
+- AuthenticationEntryPoint를 커스텀해 의미에 맞는 401 + JSON 메시지로 응답
+
 ## 트러블슈팅
 
 ### Git 머지 충돌 해결 - .gitignore 파일
@@ -110,6 +122,9 @@ jwt:
 
 > ⚠️ `application-secret.yml`은 `.gitignore`에 등록되어 있어 Git에 포함되지 않습니다.
 > 비밀 정보는 절대 코드에 직접 작성하지 않도록 주의합니다.
+> 
+> 
+
 
 ### 3. 애플리케이션 실행
 ```bash

@@ -55,7 +55,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
-    @ExceptionHandler(IllegalAccessError.class)
+    @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException e) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());

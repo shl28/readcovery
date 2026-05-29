@@ -39,3 +39,7 @@ out/
 application-secret.yml
 .env
 *.env
+
+### Frontend safety net ###
+frontend/node_modules/
+frontend/dist/

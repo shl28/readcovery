@@ -1,7 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
 import { tokenUtils } from "../utils/token";
 import { useEffect, useState } from "react";
-import { myBookApi, type MyBookResponse } from "../api/myBookApi";
+import {
+  myBookApi,
+  type MyBookResponse,
+  type ReadingStatus,
+} from "../api/myBookApi";
 import { extractErrorMessage } from "../utils/error";
 
 function MyLibraryPage() {
@@ -22,9 +26,9 @@ function MyLibraryPage() {
       } finally {
         setIsLoading(false);
       }
-
-      fetchLibrary();
     };
+
+    fetchLibrary();
   }, []);
 
   const handleLogout = () => {
@@ -32,7 +36,7 @@ function MyLibraryPage() {
     navigate("/login");
   };
 
-  const statusLabel = (status: string) => {
+  const statusLabel = (status: ReadingStatus): string => {
     if (status === "WANT") return "읽고 싶은";
     if (status === "READING") return "읽는 중";
     if (status === "DONE") return "완독";
@@ -110,7 +114,6 @@ function MyLibraryPage() {
             </div>
           ))}
         </div>
-        <p className="text-amber-700">곧 책 목록이 여기에 나옵니다.</p>
       </div>
     </div>
   );

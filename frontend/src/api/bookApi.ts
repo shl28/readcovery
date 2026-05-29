@@ -16,7 +16,6 @@ export interface BookRegisterRequest {
   publisher: string;
   thumbnail: string;
   contents: string;
-  created_at: string;
 }
 
 export interface BookResponse {

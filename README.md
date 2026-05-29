@@ -31,8 +31,11 @@ Readcovery는 사용자가 모은 인용구를 AI로 분석해 독자 자신의 
 - MySQL 8.0
 
 ### Frontend
-- React 18
-- Tailwind CSS
+- React 18 + TypeScript
+- Vite
+- Tailwind CSS v4
+- React Router
+- Axios
 
 ### 외부 API
 - 카카오 책 검색 API
@@ -146,3 +149,14 @@ jwt:
 ```bash
 ./gradlew bootRun
 ```
+### 4. 프론트엔드 실행 (별도 터미널)
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+브라우저에서 `http://localhost:5173` 접속.
+
+> 백엔드(8080)와 프론트엔드(5173)는 별도 프로세스로 실행됩니다.
+> 백엔드 SecurityConfig의 CORS가 5173을 허용하도록 설정되어 있어야 합니다.

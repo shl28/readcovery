@@ -46,4 +46,13 @@ public class MyBookController {
         MyBookResponse response = myBookService.update(userId, myBookId, request);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{myBookId}")
+    public ResponseEntity<Void> deleteMyBook(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long myBookId
+    ) {
+        myBookService.deleteMyBook(userId, myBookId);
+        return ResponseEntity.noContent().build();
+    }
 }

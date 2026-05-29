@@ -81,4 +81,14 @@ public class MyBookService {
             throw new AccessDeniedException("본인의 서재에만 접근할 수 있습니다.");
         }
     }
+
+    @Transactional
+    public void deleteMyBook(Long userId, Long myBookId) {
+        MyBook myBook = myBookRepository.findById(myBookId)
+                .orElseThrow(() -> new IllegalArgumentException("서재 책을 찾을 수 없습니다."));
+
+        validateOwnership(myBook, userId);
+
+        myBookRepository.delete(myBook);
+    }
 }

@@ -2,6 +2,7 @@ package com.readcovery.controller;
 
 import com.readcovery.dto.quote.QuoteCreateRequest;
 import com.readcovery.dto.quote.QuoteResponse;
+import com.readcovery.dto.quote.QuoteUpdateRequest;
 import com.readcovery.service.QuoteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,5 +36,24 @@ public class QuoteController {
     ) {
         List<QuoteResponse> quotes = quoteService.getQuotesByMyBook(userId, myBookId);
         return ResponseEntity.ok(quotes);
+    }
+
+    @PatchMapping("/{quoteId}")
+    public ResponseEntity<QuoteResponse> updateQuote(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long quoteId,
+            @Valid @RequestBody QuoteUpdateRequest request
+    ) {
+        QuoteResponse response = quoteService.updateQuote(userId, quoteId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{quoteId}")
+    public ResponseEntity<Void> deleteQuote(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long quoteId
+    ) {
+        quoteService.deleteQuote(userId, quoteId);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -4,6 +4,7 @@ import com.readcovery.domain.MyBook;
 import com.readcovery.domain.Quote;
 import com.readcovery.dto.quote.QuoteCreateRequest;
 import com.readcovery.dto.quote.QuoteResponse;
+import com.readcovery.dto.quote.QuoteUpdateRequest;
 import com.readcovery.repository.MyBookRepository;
 import com.readcovery.repository.QuoteRepository;
 import lombok.RequiredArgsConstructor;
@@ -58,5 +59,29 @@ public class QuoteService {
         if (!myBook.getUser().getId().equals(userId)) {
             throw new AccessDeniedException("본인의 서재에만 접근할 수 있습니다.");
         }
+    }
+
+    @Transactional
+    public QuoteResponse updateQuote(Long userId, Long quoteId, QuoteUpdateRequest request) {
+        Quote quote = quoteRepository.findById(quoteId)
+                .orElseThrow(() -> new IllegalArgumentException("인용구를 찾을 수 없습니다."));
+
+        // 소유권 검증
+        validateOwnership(quote.getMyBook(), userId);
+
+        // 수정
+        quote.edit(request.getContent(), request.getPage());
+
+        return QuoteResponse.from(quote);
+    }
+
+    @Transactional
+    public void deleteQuote(Long userId, Long quoteId) {
+        Quote quote = quoteRepository.findById(quoteId)
+                .orElseThrow(() -> new IllegalArgumentException("인용구를 찾을 수 없습니다."));
+
+        validateOwnership(quote.getMyBook(), userId);
+
+        quoteRepository.delete(quote);
     }
 }

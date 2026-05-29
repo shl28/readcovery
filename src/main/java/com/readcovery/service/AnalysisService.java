@@ -142,7 +142,7 @@ public class AnalysisService {
                         status -> status.isError(),
                         clientResponse -> clientResponse.bodyToMono(String.class)
                                 .flatMap(errorBody -> {
-                                    log.error("OpenAI 에러 응담: {}", errorBody);
+                                    log.error("OpenAI 에러 응답: {}", errorBody);
                                     return Mono.error(
                                             new IllegalStateException("OpenAI 호출 실패: " + errorBody)
                                     );

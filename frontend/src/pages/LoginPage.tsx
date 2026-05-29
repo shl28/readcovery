@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { userApi } from "../api/userApi";
 import { tokenUtils } from "../utils/token";
+import axios from "axios";
 
 function LoginPage() {
     const [email, setEmail] = useState("");
@@ -10,7 +11,9 @@ function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = async (
+        e,
+    ) => {
         e.preventDefault();
         setErrorMessage("");
         setIsLoading(true);
@@ -19,9 +22,11 @@ function LoginPage() {
             const response = await userApi.login({ email, password });
             tokenUtils.save(response.access_token);
             navigate("/");
-        } catch (error: any) {
+        } catch (error: unknown) {
             const message =
-                error.response?.data?.message || "로그인에 실패했습니다.";
+                axios.isAxiosError(error) && error.response?.data?.message
+                    ? error.response.data.message
+                    : "로그인에 실패했습니다.";
             setErrorMessage(message);
         } finally {
             setIsLoading(false);

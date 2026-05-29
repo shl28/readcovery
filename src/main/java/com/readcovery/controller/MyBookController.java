@@ -2,6 +2,7 @@ package com.readcovery.controller;
 
 import com.readcovery.dto.mybook.MyBookCreateRequest;
 import com.readcovery.dto.mybook.MyBookResponse;
+import com.readcovery.dto.mybook.MyBookUpdateRequest;
 import com.readcovery.service.MyBookService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,5 +35,15 @@ public class MyBookController {
     ) {
         List<MyBookResponse> library = myBookService.getMyLibrary(userId);
         return ResponseEntity.ok(library);
+    }
+
+    @PatchMapping("/{myBookId}")
+    public ResponseEntity<MyBookResponse> update(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long myBookId,
+            @Valid @RequestBody MyBookUpdateRequest request
+    ) {
+        MyBookResponse response = myBookService.update(userId, myBookId, request);
+        return ResponseEntity.ok(response);
     }
 }

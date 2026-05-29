@@ -5,10 +5,12 @@ import com.readcovery.domain.MyBook;
 import com.readcovery.domain.User;
 import com.readcovery.dto.mybook.MyBookCreateRequest;
 import com.readcovery.dto.mybook.MyBookResponse;
+import com.readcovery.dto.mybook.MyBookUpdateRequest;
 import com.readcovery.repository.BookRepository;
 import com.readcovery.repository.MyBookRepository;
 import com.readcovery.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,5 +55,30 @@ public class MyBookService {
         return myBookRepository.findByUserId(userId).stream()
                 .map(MyBookResponse::from)
                 .toList();
+    }
+
+    @Transactional
+    public MyBookResponse update(Long userId, Long myBookId, MyBookUpdateRequest request) {
+        MyBook myBook = myBookRepository.findById(myBookId)
+                .orElseThrow(() -> new IllegalArgumentException("서재 책을 찾을 수 없습니다."));
+
+        // 소유권 검증
+        validateOwnership(myBook, userId);
+
+        // 보낸 필드만 수정
+        if (request.getStatus() != null) {
+            myBook.changeStatus(request.getStatus());
+        }
+        if (request.getRating() != null) {
+            myBook.rate(request.getRating());
+        }
+
+        return MyBookResponse.from(myBook);
+    }
+
+    private void validateOwnership(MyBook myBook, Long userId) {
+        if (!myBook.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("본인의 서재에만 접근할 수 있습니다.");
+        }
     }
 }

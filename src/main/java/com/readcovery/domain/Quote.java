@@ -1,5 +1,6 @@
 package com.readcovery.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,6 +30,7 @@ public class Quote {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "my_book_id", nullable = false)
+    @JsonIgnore
     private MyBook myBook;
 
     @Column(nullable = false, columnDefinition = "TEXT")

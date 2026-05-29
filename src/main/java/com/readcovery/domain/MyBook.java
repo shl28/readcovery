@@ -10,6 +10,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(
@@ -55,6 +57,13 @@ public class MyBook {
     @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    @OneToMany(
+            mappedBy = "myBook",
+            cascade = CascadeType.REMOVE,
+            orphanRemoval = true
+    )
+    private List<Quote> quotes = new ArrayList<>();
 
     @Builder
     private MyBook(User user, Book book, ReadingStatus status) {

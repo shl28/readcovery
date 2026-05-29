@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { userApi } from "../api/userApi";
 import { tokenUtils } from "../utils/token";
-import axios from "axios";
+import { extractErrorMessage } from "../utils/error";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -21,11 +21,7 @@ function LoginPage() {
       tokenUtils.save(response.access_token);
       navigate("/my-library");
     } catch (error: unknown) {
-      const message =
-        axios.isAxiosError(error) && error.response?.data?.message
-          ? error.response.data.message
-          : "로그인에 실패했습니다.";
-      setErrorMessage(message);
+      setErrorMessage(extractErrorMessage(error, "로그인에 실패했습니다."));
     } finally {
       setIsLoading(false);
     }

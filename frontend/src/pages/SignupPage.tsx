@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { userApi } from "../api/userApi";
-import axios from "axios";
+import { extractErrorMessage } from "../utils/error";
 
 function SignupPage() {
   const [email, setEmail] = useState("");
@@ -21,11 +21,7 @@ function SignupPage() {
       alert("회원가입 성공! 로그인 페이지로 이동합니다.");
       navigate("/login");
     } catch (error: unknown) {
-      const message =
-        axios.isAxiosError(error) && error.response?.data?.message
-          ? error.response.data.message
-          : "회원가입에 실패했습니다.";
-      setErrorMessage(message);
+      setErrorMessage(extractErrorMessage(error, "회원가입에 실패했습니다."));
     } finally {
       setIsLoading(false);
     }

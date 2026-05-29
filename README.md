@@ -92,6 +92,22 @@ Readcovery는 사용자가 모은 인용구를 AI로 분석해 독자 자신의 
 - 배운 점: 전역 네이밍 전략은 모든 DTO에 영향을 미치므로, 외부 API 응답 매핑을 위해
   도입할 때 자체 API의 요청/응답 규약도 함께 통일해야 함.
 
+### WebClient와 전역 Jackson 설정의 불일치
+- 상황: OpenAI Chat Completions API 호출 시 "Unrecognized request argument supplied: responseFormat"
+  400 에러 발생. 로그로 직접 직렬화한 JSON은 snake_case로 정상 표시되었으나,
+  WebClient가 실제로 보낸 요청은 camelCase였음.
+- 원인: application.yml의 jackson.property-naming-strategy: SNAKE_CASE 전역 설정이
+  ObjectMapper에는 적용되지만, WebClient 내부 직렬화 코덱에는 자동 반영되지 않는 케이스.
+  (Spring Boot 4 + Jackson 3 환경)
+- 진단: onStatus로 OpenAI의 에러 응답 본문을 직접 로깅 + ObjectMapper로 요청 JSON 별도 로깅
+  → 두 JSON이 다르다는 사실 확인.
+- 해결: OpenAiChatRequest의 responseFormat 필드에 @JsonProperty("response_format") 명시.
+  전역 설정에 의존하지 않고 외부 API 명세에 맞는 정확한 필드명을 코드에 박음.
+- 배운 점: 외부 API에 보낼 DTO는 전역 직렬화 설정에 기대지 않고 @JsonProperty로 명시하는 게
+  안전. 특히 WebClient는 내부 코덱이 별도라 환경 의존성이 숨어 있을 수 있음.
+- 디버깅 인사이트: 외부 API 호출 시 onStatus로 에러 응답 본문을 명시적으로 로깅하면
+  외부 서비스가 알려주는 진짜 원인을 직접 읽을 수 있어 디버깅 시간이 크게 단축됨.
+
 ## 실행 방법
 
 ### 사전 요구사항

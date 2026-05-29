@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
@@ -144,7 +145,7 @@ public class AnalysisService {
                         clientResponse -> clientResponse.bodyToMono(String.class)
                                 .flatMap(errorBody -> {
                                     log.error("OpenAI 에러 응담: {}", errorBody);
-                                    return reactor.core.publisher.Mono.error(
+                                    return Mono.error(
                                             new IllegalStateException("OpenAI 호출 실패: " + errorBody)
                                     );
                                 })

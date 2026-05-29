@@ -82,8 +82,6 @@ public class AnalysisService {
                         .build()
         );
 
-        analysisResultRepository.flush();
-
         return AnalysisResponse.from(saved, false);
     }
 

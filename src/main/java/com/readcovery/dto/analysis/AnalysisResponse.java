@@ -25,6 +25,7 @@ public class AnalysisResponse {
                 .keywords(splitKeywords(result.getKeywords()))
                 .personality(result.getPersonality())
                 .quoteCount(result.getQuoteCountAtAnalysis())
+                .analyzedAt(result.getCreatedAt() != null ? result.getCreatedAt() : LocalDateTime.now())
                 .fromCache(fromCache)
                 .build();
     }

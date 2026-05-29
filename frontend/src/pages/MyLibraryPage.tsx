@@ -36,11 +36,13 @@ function MyLibraryPage() {
     navigate("/login");
   };
 
-  const statusLabel = (status: ReadingStatus): string => {
-    if (status === "WANT") return "읽고 싶은";
-    if (status === "READING") return "읽는 중";
-    if (status === "DONE") return "완독";
+  const STATUS_LABELS: Record<ReadingStatus, string> = {
+    WANT: "읽고 싶은",
+    READING: "읽는 중",
+    DONE: "완독",
   };
+
+  const statusLabel = (status: ReadingStatus): string => STATUS_LABELS[status];
 
   return (
     <div className="min-h-screen bg-amber-50 p-8">

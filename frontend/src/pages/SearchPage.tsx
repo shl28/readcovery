@@ -108,6 +108,7 @@ function SearchPage() {
                   src={book.thumbnail}
                   alt={book.title}
                   className="w-20 h-28 object-cover rounded"
+                  referrerPolicy="no-referrer"
                 />
               ) : (
                 <div className="w-20 h-28 bg-amber-100 rounded flex items-center justify-center text-amber-400 text-xs">

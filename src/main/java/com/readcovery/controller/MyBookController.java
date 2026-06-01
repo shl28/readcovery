@@ -37,6 +37,16 @@ public class MyBookController {
         return ResponseEntity.ok(library);
     }
 
+    @GetMapping("/{myBookId}")
+    public ResponseEntity<MyBookResponse> getMyBookDetail(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long myBookId
+    ) {
+        MyBookResponse response = myBookService.getMyBookDetail(userId, myBookId);
+
+        return ResponseEntity.ok(response);
+    }
+
     @PatchMapping("/{myBookId}")
     public ResponseEntity<MyBookResponse> update(
             @AuthenticationPrincipal Long userId,

@@ -57,6 +57,15 @@ public class MyBookService {
                 .toList();
     }
 
+    public MyBookResponse getMyBookDetail(Long userId, Long myBookId) {
+        MyBook myBook = myBookRepository.findById(myBookId)
+                .orElseThrow(() -> new IllegalArgumentException("서재 책을 찾을 수 없습니다."));
+
+        validateOwnership(myBook, userId);
+
+        return MyBookResponse.from(myBook);
+    }
+
     @Transactional
     public MyBookResponse update(Long userId, Long myBookId, MyBookUpdateRequest request) {
         MyBook myBook = myBookRepository.findById(myBookId)

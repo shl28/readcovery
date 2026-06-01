@@ -34,19 +34,11 @@ function MyBookDetailPage() {
 
         const fetchData = async () => {
             try {
-                const allMyBooks = await myBookApi.getMyLibrary();
-                const target = allMyBooks.find(
-                    (b) => b.my_book_id === numericId,
-                );
-
-                if (!target) {
-                    setErrorMessage("해당 책을 찾을 수 없습니다.");
-                    setIsLoading(false);
-                    return;
-                }
-                setMyBook(target);
-
-                const quoteList = await quoteApi.getByMyBook(numericId);
+                const [myBookData, quoteList] = await Promise.all([
+                    myBookApi.getOne(numericId),
+                    quoteApi.getByMyBook(numericId),
+                ]);
+                setMyBook(myBookData);
                 setQuotes(quoteList);
             } catch (error: unknown) {
                 setErrorMessage(

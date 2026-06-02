@@ -6,39 +6,48 @@ import PrivateRoute from "./components/PrivateRoute";
 import MyLibraryPage from "./pages/MyLibraryPage";
 import SearchPage from "./pages/SearchPage";
 import MyBookDetailPage from "./pages/MyBookDetailPage";
+import AnalysisPage from "./pages/AnalysisPage";
 
 function App() {
-    return (
-        <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route
-                path="/my-library"
-                element={
-                    <PrivateRoute>
-                        <MyLibraryPage />
-                    </PrivateRoute>
-                }
-            />
-            <Route
-                path="/search"
-                element={
-                    <PrivateRoute>
-                        <SearchPage />
-                    </PrivateRoute>
-                }
-            />
-            <Route
-                path="/my-books/:myBookId"
-                element={
-                    <PrivateRoute>
-                        <MyBookDetailPage />
-                    </PrivateRoute>
-                }
-            />
-        </Routes>
-    );
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route
+        path="/my-library"
+        element={
+          <PrivateRoute>
+            <MyLibraryPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/search"
+        element={
+          <PrivateRoute>
+            <SearchPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/my-books/:myBookId"
+        element={
+          <PrivateRoute>
+            <MyBookDetailPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/analysis"
+        element={
+          <PrivateRoute>
+            <AnalysisPage />
+          </PrivateRoute>
+        }
+      />
+    </Routes>
+  );
 }
 
 export default App;

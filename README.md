@@ -8,11 +8,13 @@
 Readcovery는 사용자가 모은 인용구를 AI로 분석해 독자 자신의 관심사와 가치관을 비춰주는 거울이 되고자 합니다.
 
 ## 주요 기능 (MVP)
+1. 회원가입 / 로그인 (JWT 기반 인증)
+2. 책 검색 (카카오 책 검색 API)
+3. 내 서재 관리 (읽고 싶은 / 읽는 중 / 완독)
+4. 책별 인용구 등록 / 조회 / 삭제
+5. AI 기반 독서 분석 (한 줄 요약 / 키워드 / 독서 성향, 7일 캐시)
 
-1.  책 검색 (카카오 책 검색 API)
-2.  내 서재 관리 (읽는중 / 완독 / 읽고싶음)
-3.  책별 인용구 등록 및 조회
-4.  AI 기반 독서 분석 (한 줄 요약 / 키워드 / 독서 성향)
+> 백엔드 + 프론트엔드 모두 구현 완료. 배포만 남은 상태.
 
 ##  추가 예정 기능
 
@@ -49,7 +51,14 @@ Readcovery는 사용자가 모은 인용구를 AI로 분석해 독자 자신의 
 
 ## ERD
 
-(작성 예정)
+![ERD](./docs/erd.png)
+
+5개 엔티티로 구성:
+- **User** — 회원 정보, 소프트 삭제 지원
+- **Book** — 책 정보 (ISBN unique, 카카오 응답 기반)
+- **MyBook** — 사용자별 서재 (User × Book 조합, unique 제약)
+- **Quote** — MyBook에 종속된 인용구 (cascade 삭제)
+- **AnalysisResult** — User 단위 AI 분석 결과 캐시
 
 ## 기술 결정 노트
 
@@ -62,6 +71,27 @@ Readcovery는 사용자가 모은 인용구를 AI로 분석해 독자 자신의 
 ### 인증 실패 응답을 401로 명확화
 - Spring Security 기본 동작은 인증되지 않은 접근에도 403을 반환하는 경우가 있음
 - AuthenticationEntryPoint를 커스텀해 의미에 맞는 401 + JSON 메시지로 응답
+
+### MyBook-Quote 양방향 관계 + cascade 삭제
+- MyBook이 삭제되면 종속된 Quote도 함께 삭제되어야 함
+- `@OneToMany(mappedBy="myBook", cascade=CascadeType.REMOVE, orphanRemoval=true)`로 부모-자식 생명주기 통합
+- CascadeType.ALL 대신 REMOVE만 명시해 의도하지 않은 INSERT/UPDATE 전파 방지
+- 양방향 관계의 함정(JSON 무한 순환)에 대한 이중 방어:
+  1차 — 모든 응답을 DTO로 변환해 엔티티 자체가 응답에 노출되지 않음
+  2차 — Quote.myBook에 @JsonIgnore로 만약의 직접 직렬화 차단
+- AnalysisResult는 Quote를 직접 참조하지 않아 cascade 영향 없음
+
+### AI 분석 캐싱 전략
+- AnalysisResult는 시점의 텍스트 요약(summary/keywords/personality)으로 저장
+- 만료 조건: 분석 후 7일 경과, 또는 인용구 5개 추가 시 재생성 필요로 판단
+- 캐시 hit 시 OpenAI 미호출로 비용 절감 + 응답 속도 1초 미만
+- 동일 사용자의 반복 분석 요청에 from_cache 플래그로 클라이언트가 캐시 상태 인지
+
+### 단일 리소스 조회 API의 RESTful 일관성
+- GET /api/my-books/{id}를 목록 API와 세트로 추가
+- 프론트엔드에서 "목록 → 상세" 진입 시 명확한 단일 호출로 의도가 드러남
+- 소유권 검증을 Controller가 아닌 Service 레이어에서 일관 처리
+- 향후 캐싱 전략 적용 시 단일 리소스 단위로 캐시 키 설계 가능
 
 ## 트러블슈팅
 
@@ -110,6 +140,38 @@ Readcovery는 사용자가 모은 인용구를 AI로 분석해 독자 자신의 
   안전. 특히 WebClient는 내부 코덱이 별도라 환경 의존성이 숨어 있을 수 있음.
 - 디버깅 인사이트: 외부 API 호출 시 onStatus로 에러 응답 본문을 명시적으로 로깅하면
   외부 서비스가 알려주는 진짜 원인을 직접 읽을 수 있어 디버깅 시간이 크게 단축됨.
+
+### React 19의 FormEvent deprecation과 SubmitEventHandler 전환
+- 상황: React 19.2.10부터 FormEvent / FormEventHandler가 deprecated 표시.
+  IDE에 취소선이 표시되었음.
+- 진단: 추측하지 않고 검색으로 공식 deprecation 노트 확인.
+  SubmitEvent / SubmitEventHandler가 대체 타입.
+- 해결: `React.FormEventHandler<HTMLFormElement>` →
+  `React.SubmitEventHandler<HTMLFormElement>`로 전환.
+  매개변수가 아닌 함수 자체에 핸들러 타입을 부여하는 방식이 React 권장 패턴.
+- 배운 점: IDE의 deprecated 표시는 단순 경고가 아니라 곧 제거될 API 신호.
+  새 표준 익혀두면 미래 버전 호환성 확보 가능.
+
+### useEffect 함수 호출 위치와 ESLint 경고
+- 상황: MyLibraryPage가 "불러오는 중..." 상태에서 멈춤. 데이터 fetch가 진행되지 않음.
+- 진단: ESLint가 `'fetchLibrary' is assigned a value but never used` 경고 출력.
+  "정의는 했는데 외부에서 호출 안 했다"는 신호.
+- 원인: `fetchLibrary()` 호출문이 함수 정의 내부에 들어가 있어 useEffect 실행 시
+  함수 정의만 되고 실제 호출은 일어나지 않았음.
+- 해결: 호출문을 함수 정의 밖, useEffect 콜백의 마지막 라인으로 이동.
+- 배운 점: ESLint 경고는 단순 코드 스타일 지적이 아닌 잠재적 버그 신호.
+  특히 'never used' 계열은 의도와 실제 동작이 어긋났을 가능성이 큼.
+
+### 외부 응답 데이터의 타입 안정성 — extractErrorMessage 오타 사례
+- 상황: 백엔드가 정확한 에러 메시지("이미 서재에 담은 책입니다.")를 응답하는데
+  프론트는 fallback 메시지만 표시.
+- 진단: Network 탭으로 응답 본문 확인 (백엔드 정상) → 코드 흐름 추적 →
+  `data.messages`(s 붙은 오타)로 접근해 undefined 반환 후 fallback 분기 진입.
+- 원인: axios 응답의 data는 타입 정보가 약해 속성 오타가 컴파일 시점에 잡히지 않음.
+- 해결: ErrorResponseData 인터페이스 정의 + `as ErrorResponseData`로 타입 좁힘.
+  속성 오타가 IDE에서 즉시 빨간 줄로 표시됨.
+- 배운 점: 외부 응답 영역까지 타입 시스템을 확장하면 휴먼 에러를 컴파일러가
+  잡아줌. 백엔드의 응답 형식이 일관되면 충분히 명시 가능.
 
 ## 실행 방법
 
@@ -160,3 +222,21 @@ npm run dev
 
 > 백엔드(8080)와 프론트엔드(5173)는 별도 프로세스로 실행됩니다.
 > 백엔드 SecurityConfig의 CORS가 5173을 허용하도록 설정되어 있어야 합니다.
+
+## 향후 개발 계획
+
+### 배포
+- AWS EC2 + RDS 환경 구축
+- Docker 컨테이너화
+- GitHub Actions CI/CD
+
+### 코드 품질
+- 단위 테스트 도입 (JUnit + Spring Boot Test)
+- 통합 테스트 (인용구 등록 → 분석 호출 전체 흐름)
+- 프론트엔드 컴포넌트 테스트 (Vitest + Testing Library)
+
+### 추가 기능
+- 인용구 전문 검색
+- 독서 통계 (월별 / 장르별)
+- 이메일 알림 (분석 결과 갱신 시)
+- 인용구 공개 피드

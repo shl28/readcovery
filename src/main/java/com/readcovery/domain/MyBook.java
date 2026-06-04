@@ -80,12 +80,14 @@ public class MyBook {
             case WANT -> {
                 this.startedAt = null;
                 this.finishedAt = null;
+                this.rating = null;
             }
             case READING -> {
                 if (this.startedAt == null) {
                     this.startedAt = LocalDateTime.now();
                 }
                 this.finishedAt = null;
+                this.rating = null;
             }
             case DONE -> {
                 if (this.startedAt == null) {

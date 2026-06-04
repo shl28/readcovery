@@ -27,6 +27,8 @@ function MyBookDetailPage() {
     const [newContent, setNewContent] = useState("");
     const [newPage, setNewPage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+    const [isUpdatingRating, setIsUpdatingRating] = useState(false);
 
     useEffect(() => {
         if (!myBookId) return;
@@ -93,6 +95,47 @@ function MyBookDetailPage() {
         }
     };
 
+    const handleChangeStatus = async (newStatus: ReadingStatus) => {
+        if (!myBook || myBook.status === newStatus) return;
+
+        setIsUpdatingStatus(true);
+        setErrorMessage("");
+
+        try {
+            const updated = await myBookApi.update(myBook.my_book_id, {
+                status: newStatus,
+            });
+            setMyBook(updated);
+        } catch (error: unknown) {
+            setErrorMessage(
+                extractErrorMessage(error, "상태 변경에 실패했습니다."),
+            );
+        } finally {
+            setIsUpdatingStatus(false);
+        }
+    };
+
+    const handleChangeRating = async (newRating: number) => {
+        if (!myBook) return;
+        const ratingToSend = myBook.rating === newRating ? null : newRating;
+
+        setIsUpdatingRating(true);
+        setErrorMessage("");
+
+        try {
+            const updated = await myBookApi.update(myBook.my_book_id, {
+                rating: ratingToSend,
+            });
+            setMyBook(updated);
+        } catch (error: unknown) {
+            setErrorMessage(
+                extractErrorMessage(error, "별점 변경에 실패했습니다."),
+            );
+        } finally {
+            setIsUpdatingRating(false);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-amber-50">
@@ -143,15 +186,84 @@ function MyBookDetailPage() {
                         <h1 className="text-2xl font-bold text-amber-900">
                             {myBook.book_title}
                         </h1>
-                        <p className="text-sm text-amber-700 mt-2">
-                            {STATUS_LABELS[myBook.status]}
-                        </p>
-                        {myBook.rating && (
-                            <p className="text-sm text-amber-600 mt-1">
-                                {"★".repeat(myBook.rating)}
-                            </p>
+                    </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-xl shadow mb-6">
+                    <h2 className="text-lg font-bold text-amber-900 mb-4">
+                        독서 상태
+                    </h2>
+
+                    <div className="flex gap-2 mb-4">
+                        {(["WANT", "READING", "DONE"] as const).map(
+                            (status) => (
+                                <button
+                                    key={status}
+                                    onClick={() => handleChangeStatus(status)}
+                                    disabled={isUpdatingStatus}
+                                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                        myBook.status === status
+                                            ? "bg-amber-900 text-white"
+                                            : "bg-amber-50 text-amber-900 hover:bg-amber-100"
+                                    } disabled:opacity-50`}
+                                >
+                                    {STATUS_LABELS[status]}
+                                </button>
+                            ),
                         )}
                     </div>
+
+                    {(myBook.started_at || myBook.finished_at) && (
+                        <div className="text-sm text-amber-700 mb-4 space-y-1">
+                            {myBook.started_at && (
+                                <p>
+                                    📖 시작:{" "}
+                                    {new Date(
+                                        myBook.started_at,
+                                    ).toLocaleDateString("ko-KR")}
+                                </p>
+                            )}
+                            {myBook.finished_at && (
+                                <p>
+                                    ✓ 완독:{" "}
+                                    {new Date(
+                                        myBook.finished_at,
+                                    ).toLocaleDateString("ko-KR")}
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    {myBook.status === "DONE" && (
+                        <div>
+                            <p className="text-sm font-medium text-amber-900 mb-2">
+                                별점
+                            </p>
+                            <div className="flex gap-1">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                        key={star}
+                                        onClick={() => handleChangeRating(star)}
+                                        disabled={isUpdatingRating}
+                                        className={`text-2xl transition-transform hover:scale-110 disabled:opacity-50 ${
+                                            myBook.rating &&
+                                            star <= myBook.rating
+                                                ? "text-amber-500"
+                                                : "text-amber-200"
+                                        }`}
+                                        aria-label={`${star}점`}
+                                    >
+                                        ★
+                                    </button>
+                                ))}
+                                {myBook.rating && (
+                                    <span className="ml-2 text-sm text-amber-700 self-center">
+                                        {myBook.rating}/5
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow mb-6">

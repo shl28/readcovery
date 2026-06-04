@@ -19,6 +19,11 @@ export interface MyBookResponse {
     created_at: string;
 }
 
+export interface MyBookUpdateRequest {
+    status?: ReadingStatus;
+    rating?: number | null;
+}
+
 export const myBookApi = {
     addToLibrary: async (
         data: MyBookCreateRequest,
@@ -38,6 +43,17 @@ export const myBookApi = {
     getOne: async (myBookId: number): Promise<MyBookResponse> => {
         const response = await apiClient.get<MyBookResponse>(
             `api/my-books/${myBookId}`,
+        );
+        return response.data;
+    },
+
+    update: async (
+        myBookId: number,
+        data: MyBookUpdateRequest,
+    ): Promise<MyBookResponse> => {
+        const response = await apiClient.patch<MyBookResponse>(
+            `/api/my-books/${myBookId}`,
+            data,
         );
         return response.data;
     },

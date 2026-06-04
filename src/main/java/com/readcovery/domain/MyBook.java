@@ -75,11 +75,24 @@ public class MyBook {
     // 독서 상태 변경
     public void changeStatus(ReadingStatus newStatus) {
         this.status = newStatus;
-        if (newStatus == ReadingStatus.READING && this.startedAt == null) {
-            this.startedAt = LocalDateTime.now();
-        }
-        if (newStatus == ReadingStatus.DONE) {
-            this.finishedAt = LocalDateTime.now();
+
+        switch (newStatus) {
+            case WANT -> {
+                this.startedAt = null;
+                this.finishedAt = null;
+            }
+            case READING -> {
+                if (this.startedAt == null) {
+                    this.startedAt = LocalDateTime.now();
+                }
+                this.finishedAt = null;
+            }
+            case DONE -> {
+                if (this.startedAt == null) {
+                    this.startedAt = LocalDateTime.now();
+                }
+                this.finishedAt = LocalDateTime.now();
+            }
         }
     }
 
@@ -89,5 +102,9 @@ public class MyBook {
             throw new IllegalArgumentException("별점은 1~5 사이여야 합니다.");
         }
         this.rating = rating;
+    }
+
+    public void clearRating() {
+        this.rating = null;
     }
 }

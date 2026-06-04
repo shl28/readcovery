@@ -78,7 +78,10 @@ public class MyBookService {
         if (request.getStatus() != null) {
             myBook.changeStatus(request.getStatus());
         }
-        if (request.getRating() != null) {
+
+        if (request.isClearRating()){
+            myBook.clearRating();
+        } else if (request.getRating() != null) {
             myBook.rate(request.getRating());
         }
 

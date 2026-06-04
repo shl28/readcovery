@@ -117,15 +117,16 @@ function MyBookDetailPage() {
 
     const handleChangeRating = async (newRating: number) => {
         if (!myBook) return;
-        const ratingToSend = myBook.rating === newRating ? null : newRating;
+        const isToggleOff = myBook.rating === newRating;
 
         setIsUpdatingRating(true);
         setErrorMessage("");
 
         try {
-            const updated = await myBookApi.update(myBook.my_book_id, {
-                rating: ratingToSend,
-            });
+            const updated = await myBookApi.update(
+                myBook.my_book_id,
+                isToggleOff ? { clear_rating: true } : { rating: newRating },
+            );
             setMyBook(updated);
         } catch (error: unknown) {
             setErrorMessage(

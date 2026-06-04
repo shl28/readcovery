@@ -22,6 +22,7 @@ export interface MyBookResponse {
 export interface MyBookUpdateRequest {
     status?: ReadingStatus;
     rating?: number | null;
+    clear_rating?: boolean;
 }
 
 export const myBookApi = {

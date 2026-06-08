@@ -58,4 +58,8 @@ export const myBookApi = {
         );
         return response.data;
     },
+
+    delete: async (myBookId: number): Promise<void> => {
+        await apiClient.delete(`api/my-books/${myBookId}`);
+    },
 };

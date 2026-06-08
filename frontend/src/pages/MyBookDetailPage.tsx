@@ -137,6 +137,25 @@ function MyBookDetailPage() {
         }
     };
 
+    const handleDeleteMyBook = async () => {
+        if (!myBook) return;
+
+        if (
+            !confirm(
+                `"${myBook.book_title}"을(를) 서재에서 삭제하시겠습니까?\n\n등록된 인용구도 함께 삭제됩니다.`,
+            )
+        ) {
+            return;
+        }
+
+        try {
+            await myBookApi.delete(myBook.my_book_id);
+            navigate("/my-library");
+        } catch (error: unknown) {
+            setErrorMessage(extractErrorMessage(error, "삭제에 실패했습니다."));
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-amber-50">
@@ -172,7 +191,13 @@ function MyBookDetailPage() {
             <Navbar />
 
             <div className="max-w-3xl mx-auto p-8">
-                <div className="bg-white p-6 rounded-xl shadow mb-6 flex gap-6">
+                <div className="bg-white p-6 rounded-xl shadow mb-6 flex gap-6 relative">
+                    <button
+                        onClick={handleDeleteMyBook}
+                        className="absolute top-3 right-3 text-xs text-amber-400 hover:text-red-600 transition-colors"
+                    >
+                        서재에서 빼기
+                    </button>
                     {myBook.book_thumbnail ? (
                         <img
                             src={myBook.book_thumbnail}
@@ -183,7 +208,7 @@ function MyBookDetailPage() {
                     ) : (
                         <div className="w-24 h-32 bg-amber-100 rounded" />
                     )}
-                    <div className="flex-1">
+                    <div className="flex-1 pr-20">
                         <h1 className="text-2xl font-bold text-amber-900">
                             {myBook.book_title}
                         </h1>

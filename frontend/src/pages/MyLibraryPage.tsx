@@ -18,6 +18,7 @@ function MyLibraryPage() {
     const [books, setBooks] = useState<MyBookResponse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState("");
+    const [deletingId, setDeletingId] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchLibrary = async () => {
@@ -35,6 +36,33 @@ function MyLibraryPage() {
 
         fetchLibrary();
     }, []);
+
+    const handleDelete = async (
+        e: React.MouseEvent,
+        myBookId: number,
+        bookTitle: string,
+    ) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (
+            !confirm(
+                `"${bookTitle}"을(를) 서재에서 삭제하시겠습니까?\n\n등록된 인용구도 함께 삭제됩니다.`,
+            )
+        ) {
+            return;
+        }
+
+        setDeletingId(myBookId);
+        try {
+            await myBookApi.delete(myBookId);
+            setBooks(books.filter((b) => b.my_book_id !== myBookId));
+        } catch (error: unknown) {
+            setErrorMessage(extractErrorMessage(error, "삭제에 실패했습니다."));
+        } finally {
+            setDeletingId(null);
+        }
+    };
 
     const statusLabel = (status: ReadingStatus): string =>
         STATUS_LABELS[status];
@@ -75,8 +103,22 @@ function MyLibraryPage() {
                         <Link
                             key={book.my_book_id}
                             to={`/my-books/${book.my_book_id}`}
-                            className="bg-white p-4 rounded-xl shadow flex gap-4 hover:shadow-lg transition-shadow"
+                            className="relative bg-white p-4 rounded-xl shadow flex gap-4 hover:shadow-lg transition-shadow"
                         >
+                            <button
+                                onClick={(e) =>
+                                    handleDelete(
+                                        e,
+                                        book.my_book_id,
+                                        book.book_title,
+                                    )
+                                }
+                                disabled={deletingId === book.my_book_id}
+                                aria-label={`${book.book_title} 삭제`}
+                                className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-amber-300 hover:text-amber-700 hover:bg-amber-50 rounded-full text-sm transition-colors disabled:opacity-30"
+                            >
+                                ✕
+                            </button>
                             {book.book_thumbnail ? (
                                 <img
                                     src={book.book_thumbnail}
@@ -88,7 +130,7 @@ function MyLibraryPage() {
                                 <div className="w-20 h-28 bg-amber-100 rounded" />
                             )}
                             <div className="flex-1">
-                                <h3 className="font-bold text-amber-900 line-clamp-2">
+                                <h3 className="font-bold text-amber-900 line-clamp-2 pr-6">
                                     {book.book_title}
                                 </h3>
                                 <p className="text-xs text-amber-700 mt-2">

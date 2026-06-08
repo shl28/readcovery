@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RecommendationService {
 
-    private static final int RECOMMENDATIONS_PER_KEYWORD =  3;
+    private static final int RECOMMENDATIONS_PER_KEYWORD =  10;
     private static final int TOTAL_RECOMMENDATIONS = 5;
 
     private final AnalysisResultRepository analysisResultRepository;

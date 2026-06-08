@@ -9,6 +9,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 @Entity
 @Table(
@@ -73,5 +75,13 @@ public class AnalysisResult {
     // 인용구 개수가 크게 늘었는지 확인(5개 이상 추가됐으면 갱신)
     public boolean shouldRegenerate(int currentQuoteCount) {
         return isExpired() || (currentQuoteCount - this.quoteCountAtAnalysis >= 5);
+    }
+
+    public List<String> getKeywordList() {
+        if (keywords == null || keywords.isBlank()) return List.of();
+        return Arrays.stream(keywords.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
     }
 }
